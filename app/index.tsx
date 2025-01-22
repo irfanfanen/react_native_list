@@ -1,64 +1,73 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Button,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function Index() {
+  const router = useRouter();
 
-  const router = useRouter()
-
-  const [query, setQuery] = useState('')
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [query, setQuery] = useState("");
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if(query) {
-      fetchData()
+    if (query) {
+      fetchData();
     }
-  }, [query, page])
+  }, [query, page]);
 
   const fetchData = async () => {
-    setLoading(true)
+    setLoading(true);
 
     const limit = 25;
-    const url = `https://itunes.apple.com/search?term=${query}&limit=${limit}&offset=${(page - 1) * limit}`
+    const url = `https://itunes.apple.com/search?term=${query}&limit=${limit}&offset=${(page - 1) * limit}`;
 
     try {
-      const res = await fetch(url)
-      const json = await res.json()
+      const res = await fetch(url);
+      const json = await res.json();
 
-      if(json.results.length > 0) {
-        setData((prev) => [...prev, ...json.results])
+      if (json.results.length > 0) {
+        setData((prev) => [...prev, ...json.results]);
       } else {
-        setHasMore(false)
+        setHasMore(false);
       }
     } catch (error) {
-      console.log(error)
-      setError('Error fetching data')
+      console.log(error);
+      setError("Error fetching data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-  
+  };
+
   const handleSearch = async () => {
-    setData([])
-    setPage(1)
-    setHasMore(true)
-    setError(null)
-    fetchData()
-  }
+    setData([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
+    fetchData();
+  };
 
   const handleEndReached = async () => {
-    if(hasMore && !loading) {
-      setPage((prev) => prev + 1)
+    if (hasMore && !loading) {
+      setPage((prev) => prev + 1);
     }
-  }
+  };
 
   const toDetailScreen = async (item: any) => {
     router.push({
-      pathname: '/details',
+      pathname: "/details",
       params: {
         title: item.trackName,
         type: item.kind,
@@ -66,12 +75,12 @@ export default function Index() {
         artist: item.artistName,
         price: item.trackPrice,
         currency: item.currency,
-      }
-    })
-  }
-  
+      },
+    });
+  };
+
   return (
-    <View style={styles.container} >
+    <View style={styles.container}>
       <TextInput
         style={styles.input}
         placeholder="Search.."
@@ -85,10 +94,13 @@ export default function Index() {
       <FlatList
         data={data}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <TouchableOpacity onPress={() => toDetailScreen(item)}>
             <View style={styles.resultItem}>
-              <Image source={{uri: item.artworkUrl100}} style={styles.thumbnail} />
+              <Image
+                source={{ uri: item.artworkUrl100 }}
+                style={styles.thumbnail}
+              />
               <View>
                 <Text style={styles.itemTrack}>{item.trackName}</Text>
                 <Text style={styles.itemName}>{item.kind}</Text>
@@ -103,11 +115,11 @@ export default function Index() {
         }
       />
 
-      {!loading && !hasMore && data.length === 0  && (
+      {!loading && !hasMore && data.length === 0 && (
         <Text style={styles.itemNoMore}>No result found</Text>
       )}
 
-      {!loading && !hasMore && data.length > 0  && (
+      {!loading && !hasMore && data.length > 0 && (
         <Text style={styles.itemNoMore}>No more result</Text>
       )}
     </View>
@@ -118,24 +130,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
   },
   loading: {
     marginVertical: 10,
-    textAlign: 'center',
-    color: 'gray',
+    textAlign: "center",
+    color: "gray",
   },
   resultItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginVertical: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   thumbnail: {
@@ -144,16 +156,13 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   itemTrack: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   itemName: {
-    color: 'gray',
+    color: "gray",
   },
   itemNoMore: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 10,
   },
-  button: {
-
-  }
-})
+});
