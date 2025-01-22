@@ -1,0 +1,30 @@
+Food Recipe App UI | Expo | React Native:
+https://www.youtube.com/watch?v=JJR60QtgdsM
+
+react native news app:
+https://www.youtube.com/watch?v=Q_Sk6YL_eh4
+
+Search Filter in React Native:
+https://www.youtube.com/watch?v=MLaoZC1PcOA
+
+with Api:
+https://www.youtube.com/watch?v=r88z8nrk8Ww
+
+with api2:
+https://www.youtube.com/watch?v=Q4S9M9rJAxk
+
+https://www.youtube.com/watch?v=jow2lXber3A
+React native infinite scroll using FlatList:
+
+ui list with pagination:
+https://www.interaction-design.org/literature/topics/pagination
+
+navigation:
+https://reactnative.dev/docs/navigation
+https://docs.expo.dev/tutorial/add-navigation/
+
+Router:
+https://stackoverflow.com/questions/76604270/passing-object-using-expo-router
+
+Update title:
+https://docs.expo.dev/router/advanced/stack/
