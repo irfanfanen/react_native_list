@@ -29,6 +29,7 @@ export default function Index() {
         setData([]);
         setPage(1);
         setHasMore(true);
+        setError(null);
     }
   }, [query]);
 
@@ -65,6 +66,7 @@ export default function Index() {
       }
     } catch (error: any) {
       console.log(error);
+      setHasMore(false);
       setError("Error fetching data");
     } finally {
       setLoading(false);
