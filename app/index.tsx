@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import { MaterialIcons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
   Button,
@@ -18,45 +19,56 @@ export default function Index() {
   const [query, setQuery] = useState("");
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [limit, setLimit] = useState(25);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (query) {
-      fetchData();
+        setData([]);
+        setPage(1);
+        setHasMore(true);
     }
-  }, [query, page]);
+  }, [query]);
+
+  useEffect(() => {
+      if(query && hasMore) {
+        fetchData();
+      }
+  }, [page]);
 
   const fetchData = async () => {
-    setLoading(true);
+    if(!query) return;
 
-    const limit = 25;
+    setLoading(true);
+    setError(null);
+
     const url = `https://itunes.apple.com/search?term=${query}&limit=${limit}&offset=${(page - 1) * limit}`;
 
     try {
       const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
       const json = await res.json();
 
       if (json.results.length > 0) {
         setData((prev) => [...prev, ...json.results]);
       } else {
         setHasMore(false);
+        if (page === 1) {
+            setError("No result found");
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       setError("Error fetching data");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSearch = async () => {
-    setData([]);
-    setPage(1);
-    setHasMore(true);
-    setError(null);
-    fetchData();
   };
 
   const handleEndReached = async () => {
@@ -72,42 +84,61 @@ export default function Index() {
         title: item.trackName,
         type: item.kind,
         image: item.artworkUrl100,
-        artist: item.artistName,
         price: item.trackPrice,
         currency: item.currency,
+        artist: item.artistName,
+        releaseDate: item.releaseDate,
+        gendre: item.primaryGenreName,
       },
     });
   };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Search.."
-        value={query}
-        onChangeText={setQuery}
-      />
-      <Button title="Search" onPress={handleSearch} />
+      <View style={styles.searchBarContainer}>
+        <MaterialIcons
+          name="search"
+          size={24}
+          color="gray"
+        />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Find Movies, Show and more"
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={() => fetchData()}
+        />
+        {query.length> 0 && (
+          <MaterialIcons
+            name="close"
+            size={24}
+            color="black"
+            onPress={() => setQuery("")}
+          />
+        )}
+      </View>
 
-      {error && <Text style={styles.loading}>{error}</Text>}
+      {error && <Text style={styles.itemMessage}>{error}</Text>}
 
       <FlatList
         data={data}
         keyExtractor={(item, index) => index.toString()}
+        numColumns={2}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => toDetailScreen(item)}>
-            <View style={styles.resultItem}>
+            <View style={styles.itemCard}>
               <Image
                 source={{ uri: item.artworkUrl100 }}
-                style={styles.thumbnail}
+                style={styles.itemImage}
               />
               <View>
-                <Text style={styles.itemTrack}>{item.trackName}</Text>
-                <Text style={styles.itemName}>{item.kind}</Text>
+                <Text style={styles.itemTitle}>{item.trackName}</Text>
+                <Text style={styles.itemType}>{item.kind}</Text>
               </View>
             </View>
           </TouchableOpacity>
         )}
+        contentContainerStyle={styles.itemContainer}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
@@ -115,13 +146,6 @@ export default function Index() {
         }
       />
 
-      {!loading && !hasMore && data.length === 0 && (
-        <Text style={styles.itemNoMore}>No result found</Text>
-      )}
-
-      {!loading && !hasMore && data.length > 0 && (
-        <Text style={styles.itemNoMore}>No more result</Text>
-      )}
     </View>
   );
 }
@@ -129,40 +153,51 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 16,
     backgroundColor: "#fff",
   },
-  input: {
+  searchBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: 12,
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: "#f9f9f9",
   },
-  loading: {
-    marginVertical: 10,
-    textAlign: "center",
-    color: "gray",
+  searchBar: {
+    flex: 1,
+    height: 40,
   },
-  resultItem: {
-    flexDirection: "row",
-    marginVertical: 10,
+  itemContainer: {
     alignItems: "center",
-    marginTop: 20,
   },
-  thumbnail: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
+  itemCard: {
+    width: 160,
+    margin: 8,
+    alignItems: "center",
   },
-  itemTrack: {
+  itemImage: {
+    width: 160,
+    height: 160,
+    borderRadius: 15,
+  },
+  itemTitle: {
+    fontSize: 16,
     fontWeight: "bold",
-  },
-  itemName: {
-    color: "gray",
-  },
-  itemNoMore: {
+    marginTop: 8,
     textAlign: "center",
-    marginTop: 10,
+  },
+  itemType: {
+    fontSize: 12,
+    color: "gray",
+    textAlign: "center",
+  },
+  itemMessage: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "gray",
   },
 });

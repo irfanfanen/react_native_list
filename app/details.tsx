@@ -9,23 +9,30 @@ export default function details() {
     price: string;
     currency: string;
     artist: string;
+    releaseDate: string;
+    gendre: string;
   };
 
   const params: Params = useLocalSearchParams();
 
+  const DetailRow = ({ label, value }: { label: string; value: string }) => (
+    <View style={styles.row}>
+      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{value}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          title: params.title,
-        }}
-      />
       <Image source={{ uri: params.image }} style={styles.thumbnail} />
-      <Text style={styles.title}>type: {params.type}</Text>
-      <Text style={styles.type}>Artist: {params.artist}</Text>
-      <Text style={styles.price}>
-        Price: {params.price} {params.currency}
-      </Text>
+      <Text style={styles.title}>{params.title}</Text>
+      <View style={styles.detailsContainer}>
+        <DetailRow label="Type" value={params.type} />        
+        <DetailRow label="Price" value={`${params.currency} ${params.price}`} />
+        <DetailRow label="Artist" value={params.artist} />
+        <DetailRow label="Release Date" value={params.releaseDate} />
+        <DetailRow label="Genre" value={params.gendre} />
+      </View>
     </View>
   );
 }
@@ -33,29 +40,33 @@ export default function details() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#fff",
+    padding: 16,
   },
   thumbnail: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
+    width: '100%',
+    height: 300,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
   },
-  type: {
-    fontSize: 18,
-    marginTop: 10,
+  detailsContainer: {
+    marginTop: 16,
   },
-  price: {
-    fontSize: 18,
-    marginTop: 10,
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  label: {
+    fontSize: 16,
     fontWeight: "bold",
-    color: "blue",
+  },
+  value: {
+    fontSize: 16,
+    color: "gary",
   },
 });
